@@ -1,28 +1,47 @@
 import {
   AbsoluteFill,
+  Audio,
   Sequence,
   staticFile,
   useCurrentFrame,
   useVideoConfig,
   interpolate,
-  spring,
-  Img,
 } from "remotion";
 import { Video } from "@remotion/media";
 import { TextOverlay } from "./components/TextOverlay";
+import { ZoomVideo } from "./components/ZoomVideo";
+import { DepthVignette } from "./components/DepthVignette";
+import { HookTextOverlay } from "./components/HookTextOverlay";
+import { MidCTAHint } from "./components/MidCTAHint";
+import { DynamicWatermark } from "./components/DynamicWatermark";
+import { CTAOverlay } from "./components/CTAOverlay";
 
-// === Timing (30 fps, 900 frames = 30s) ====================================
+// === Timing (30 fps, 870 frames = 29s) ====================================
 //
-//  Segment 1 | f0   – f150  | 5s  | gift-handover.mp4 — hook restaurant
-//  Segment 2 | f150 – f360  | 7s  | bear-closeup-4k.mp4 @0.25x — slow-mo 4K
-//  Segment 3 | f360 – f540  | 6s  | bear-outdoor.mp4 — outdoor bear
-//  Segment 4 | f540 – f720  | 6s  | bear-closeup-4k.mp4 @0.25x trimBefore=1.75 — slow-mo cont.
-//  Segment 5 | f720 – f900  | 6s  | gift-handover.mp4 trimBefore=4 — CTA restaurant
+//  Cuts every 2.5–3s. Ken Burns 2–6% + drift alternant stânga/dreapta/sus.
 //
-// Zoom pe fiecare clip ascunde textele originale (TikTok/watermarks)
-// bear-closeup-4k.mp4 este 120fps → playbackRate=0.25 = slow-motion 4x
+//  f0   – f75   | 2.5s | engage.mp4              hook, zoom 6%, drift →+12px
+//  f75  – f165  | 3s   | gift-handover.mp4       restaurant, drift ←-8px
+//  f165 – f255  | 3s   | bear-closeup-1080 @.25x slow-mo reveal, drift ↑-6px
+//  f255 – f330  | 2.5s | gift-handover.mp4 t=3   box detail, drift →+8px
+//  f330 – f420  | 3s   | cu-lantisor.mp4         colier reveal, drift ←-8px
+//  f420 – f510  | 3s   | bear-closeup-1080 @.25x t=1, drift →+6px
+//  f510 – f619  | 3.6s | bear-youtube.mp4 t=2    beauty pre-CTA, drift ←-6px
+//  f619 – f870  | 8.4s | bear-youtube.mp4 t=7    CTA background, drift →+4px
+//
+//  Subtitles (PROVIZORII — re-sync cu sync-subtitles.py după audio nou):
+//  f5  – f115 | "Cauți cadoul perfect pentru ea?"       | "Unul pe care chiar nu-l va uita."
+//  f120– f225 | "Pentru momentul în care vrei să spui…" | '"Vrei să fii a mea?"'
+//  f230– f335 | "Cadoul perfect pentru logodnă,"        | "aniversare sau nuntă."
+//  f340– f450 | "Există un cadou 2-în-1"                | "care spune totul fără cuvinte."
+//  f455– f545 | "Ursuleț cu trandafir etern —"          | "nu se ofilește niciodată."
+//  f550– f615 | "Iar în interior…"                      | "un colier cu inimi împletite."
+//  f619– f870 | CTA overlay
+//  Bridge voce (înainte de CTA): "Un moment pe care nu-l va uita niciodată."
+//
+// bear-closeup-1080.mp4 este 120fps → playbackRate=0.25 = slow-motion 4x
 
-const TOTAL_FRAMES = 810; // 27s
+const TOTAL_FRAMES = 900; // 30s — voiceover "voce-bear-gift-ad.mp3" (ElevenLabs, ~29.5s)
 const DIR = "ads/bear-gift";
 const FADE_OUT = 12;
 
@@ -62,6 +81,7 @@ const ZOOM_ENGAGE = {
   objectFit: "cover" as const,
   transform: "scale(1.08)",
 };
+
 
 // --------------------------------------------------------------------------
 // Subtitle block
@@ -131,198 +151,15 @@ const SubtitleBlock: React.FC<SubtitleBlockProps> = ({
   );
 };
 
-// --------------------------------------------------------------------------
-// CTA overlay — logo Azora + titlu + buton auriu
-// --------------------------------------------------------------------------
-const CTAOverlay: React.FC = () => {
-  const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
-
-  const bgOpacity = interpolate(frame, [0, 20], [0, 0.85], {
-    extrapolateRight: "clamp",
-  });
-  const logoOpacity = interpolate(frame, [0, 18], [0, 1], {
-    extrapolateLeft: "clamp",
-    extrapolateRight: "clamp",
-  });
-  const textProgress = spring({
-    frame: frame - 12,
-    fps,
-    config: { damping: 200 },
-    durationInFrames: 20,
-  });
-  const textOpacity = interpolate(textProgress, [0, 1], [0, 1]);
-  const textY = interpolate(textProgress, [0, 1], [30, 0]);
-  const buttonScale = spring({
-    frame: frame - 30,
-    fps,
-    config: { damping: 15, stiffness: 160 },
-    from: 0,
-    to: 1,
-  });
-  const arrowX = interpolate(
-    Math.sin((frame / fps) * Math.PI * 3),
-    [-1, 1],
-    [0, 10]
-  );
-  const pulse = interpolate(
-    Math.sin((frame / fps) * Math.PI * 1.5),
-    [-1, 1],
-    [0.97, 1.03]
-  );
-
-  return (
-    <AbsoluteFill>
-      {/* Dark brand overlay */}
-      <AbsoluteFill style={{ background: `rgba(70,3,15,${bgOpacity})` }} />
-
-      <AbsoluteFill
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          gap: 16,
-          padding: "0 52px",
-        }}
-      >
-        {/* Logo */}
-        <div style={{ opacity: logoOpacity }}>
-          <Img
-            src={staticFile("brand/azora-logo-full.png")}
-            style={{ width: 240, objectFit: "contain" }}
-          />
-        </div>
-
-        {/* Tagline */}
-        <div
-          style={{
-            opacity: textOpacity,
-            transform: `translateY(${textY}px)`,
-            color: "rgba(255,255,255,0.90)",
-            fontSize: 40,
-            fontWeight: 700,
-            fontFamily: "sans-serif",
-            textAlign: "center",
-            lineHeight: 1.35,
-            textShadow: "0 2px 12px rgba(0,0,0,0.7)",
-          }}
-        >
-          Cadoul perfect pentru ea —{"\n"}trandafir etern + colier
-        </div>
-
-        {/* Price hint */}
-        <div
-          style={{
-            opacity: interpolate(frame, [40, 60], [0, 1], {
-              extrapolateLeft: "clamp",
-              extrapolateRight: "clamp",
-            }),
-            color: "#D4AF37",
-            fontSize: 34,
-            fontWeight: 700,
-            fontFamily: "sans-serif",
-            textAlign: "center",
-            textShadow: "0 0 20px rgba(212,175,55,0.4)",
-          }}
-        >
-          Livrare rapida in toata Romania
-        </div>
-
-        {/* CTA button */}
-        <div
-          style={{
-            transform: `scale(${buttonScale * pulse})`,
-            marginTop: 8,
-          }}
-        >
-          <div
-            style={{
-              background: "linear-gradient(135deg, #D4AF37 0%, #f0c94a 100%)",
-              borderRadius: 56,
-              padding: "22px 44px",
-              display: "flex",
-              alignItems: "center",
-              gap: 12,
-              boxShadow: "0 8px 36px rgba(212,175,55,0.65)",
-            }}
-          >
-            <span
-              style={{
-                color: "#5a0010",
-                fontSize: 34,
-                fontWeight: 900,
-                fontFamily: "sans-serif",
-              }}
-            >
-              Comanda acum pe Azora.ro
-            </span>
-            <span
-              style={{
-                fontSize: 34,
-                transform: `translateX(${arrowX}px)`,
-                color: "#5a0010",
-              }}
-            >
-              →
-            </span>
-          </div>
-        </div>
-      </AbsoluteFill>
-    </AbsoluteFill>
-  );
-};
-
-// --------------------------------------------------------------------------
-// Dynamic watermark — logo Azora se muta in pozitii diferite ca la TikTok
-// --------------------------------------------------------------------------
-const WATERMARK_POSITIONS = [
-  { top: "8%",  left: "6%"  },  // top-left
-  { top: "8%",  right: "6%" },  // top-right
-  { top: "38%", left: "6%"  },  // middle-left
-  { top: "38%", right: "6%" },  // middle-right
-  { top: "68%", left: "6%"  },  // lower-left
-  { top: "68%", right: "6%" },  // lower-right
-];
-const SWITCH_EVERY_FRAMES = 120; // 4s
-
-const DynamicWatermark: React.FC = () => {
-  const frame = useCurrentFrame();
-  const posIndex = Math.floor(frame / SWITCH_EVERY_FRAMES) % WATERMARK_POSITIONS.length;
-  const nextIndex = (posIndex + 1) % WATERMARK_POSITIONS.length;
-  const frameInSlot = frame % SWITCH_EVERY_FRAMES;
-  const fadeFrames = 15;
-
-  // Cross-fade între pozitia curenta si urmatoarea
-  const fadeOut = interpolate(frameInSlot, [SWITCH_EVERY_FRAMES - fadeFrames, SWITCH_EVERY_FRAMES], [1, 0], {
-    extrapolateLeft: "clamp", extrapolateRight: "clamp",
-  });
-  const fadeIn = interpolate(frameInSlot, [SWITCH_EVERY_FRAMES - fadeFrames, SWITCH_EVERY_FRAMES], [0, 1], {
-    extrapolateLeft: "clamp", extrapolateRight: "clamp",
-  });
-
-  const wStyle: React.CSSProperties = {
-    position: "absolute",
-    pointerEvents: "none",
-  };
-
-  return (
-    <>
-      <div style={{ ...wStyle, ...WATERMARK_POSITIONS[posIndex], opacity: 0.38 * fadeOut }}>
-        <Img src={staticFile("brand/logo-copywrite.png")} style={{ width: 130, objectFit: "contain" }} />
-      </div>
-      <div style={{ ...wStyle, ...WATERMARK_POSITIONS[nextIndex], opacity: 0.38 * fadeIn }}>
-        <Img src={staticFile("brand/logo-copywrite.png")} style={{ width: 130, objectFit: "contain" }} />
-      </div>
-    </>
-  );
-};
 
 // --------------------------------------------------------------------------
 // Shared overlay — gradients + subtitles + CTA
 // --------------------------------------------------------------------------
 const BearGiftAdOverlay: React.FC = () => (
   <>
+    {/* Vignette adâncime cinematică */}
+    <DepthVignette />
+
     {/* Gradient la top */}
     <AbsoluteFill
       style={{ background: TOP_GRADIENT, pointerEvents: "none" }}
@@ -333,150 +170,230 @@ const BearGiftAdOverlay: React.FC = () => (
       style={{ background: BOTTOM_GRADIENT, pointerEvents: "none" }}
     />
 
-    {/* ── SUBTITLE BLOCKS ──────────────────────────────────────── */}
+    {/* ── SUBTITLE BLOCKS — sincronizate cu Whisper (ElevenLabs, ~29.5s) ────────── */}
+    {/* Bloc 3: fix manual (Whisper inversează constant cele 2 linii scurte)      */}
 
-    {/* 0–3s | Hook */}
-    <Sequence from={5} durationInFrames={83}>
+    {/* f0–f139 | Bloc 1 | Hook — Whisper ✅ */}
+    {/* line1: "Cauți cadoul perfect pentru ea?"  0.43s = f13 */}
+    {/* line2: "Unul pe care chiar nu-l va uita."  2.30s = f69 */}
+    <Sequence from={0} durationInFrames={139}>
       <SubtitleBlock
-        line1="Cauti cadoul perfect pentru ea?"
-        line2="Unul pe care nu-l uita niciodata."
-        totalDuration={83}
-        line1Delay={3}
-        line2Delay={20}
+        line1="Cauți cadoul perfect pentru ea?"
+        line2="Unul pe care chiar nu-l va uita."
+        totalDuration={139}
+        line1Delay={0}
+        line2Delay={49}
         line1Size={48}
         line2Size={46}
       />
     </Sequence>
 
-    {/* 3–6s | Situatii 1 */}
-    <Sequence from={93} durationInFrames={87}>
+    {/* f132–f252 | Bloc 2 | Propunere — extins pe durata ask-for-engafe */}
+    {/* line1: "Pentru momentul în care vrei să spui…"  4.90s = f147 */}
+    {/* line2: "Vrei să fii a mea?"  5.80s = f174 */}
+    <Sequence from={132} durationInFrames={120}>
       <SubtitleBlock
-        line1="Cadoul perfect de logodna,"
-        line2="aniversare sau nunta."
-        totalDuration={87}
-        line1Delay={3}
-        line2Delay={20}
-        line1Size={48}
+        line1="Pentru momentul în care vrei să spui…"
+        line2={`"Vrei să fii a mea?"`}
+        totalDuration={120}
+        line1Delay={0}
+        line2Delay={22}
+        line1Size={44}
         line2Size={48}
       />
     </Sequence>
 
-    {/* 6–9s | Situatii 2 */}
-    <Sequence from={183} durationInFrames={84}>
+    {/* f255–f349 | Bloc 3 | Tensiune */}
+    {/* line1: "E greu să găsești ceva"  ~9.0s = f270 */}
+    {/* line2: "care să spună tot ce simți."  ~10.5s = f315 */}
+    <Sequence from={255} durationInFrames={94}>
       <SubtitleBlock
-        line1="Exista un cadou 2-in-1"
-        line2="care spune totul fara cuvinte."
-        totalDuration={84}
-        line1Size={52}
-        line2Size={48}
-      />
-    </Sequence>
-
-    {/* 9–13s | Hero produs — trandafir (se termina cand incepe cu-lantisor) */}
-    <Sequence from={273} durationInFrames={117}>
-      <SubtitleBlock
-        line1="Ursulet cu trandafir etern in piept —"
-        line2="nu se ofileste niciodata."
-        totalDuration={117}
-        line1Delay={5}
-        line2Delay={25}
-        line1Size={46}
-        line2Size={50}
-      />
-    </Sequence>
-
-    {/* 13–18s | Hero produs — colier (porneste odata cu segmentul cu-lantisor) */}
-    <Sequence from={393} durationInFrames={140}>
-      <SubtitleBlock
-        line1="Colier inimi impletite"
-        line2="inclus in cutie."
-        totalDuration={82}
-        line1Size={54}
-        line2Size={50}
-      />
-    </Sequence>
-
-    {/* 17.8–20.8s | Bridge — inchide inelul narativ inainte de CTA */}
-    <Sequence from={535} durationInFrames={90}>
-      <SubtitleBlock
-        line1="Un cadou pe care nu-l uiți"
-        line2="niciodată."
-        totalDuration={90}
-        line1Delay={3}
-        line2Delay={18}
+        line1="E greu să găsești ceva"
+        line2="care să spună tot ce simți."
+        totalDuration={94}
+        line1Delay={0}
+        line2Delay={40}
         line1Size={50}
-        line2Size={54}
+        line2Size={48}
       />
+    </Sequence>
+
+    {/* f354–f556 | Bloc 4 | Produs WOW — Whisper ✅ */}
+    {/* line1: "Există un cadou 2-în-1 care face fix asta —"  12.30s = f369 */}
+    {/* line2: "trandafir etern care nu se ofilește niciodată."  15.50s = f465 */}
+    <Sequence from={354} durationInFrames={202}>
+      <SubtitleBlock
+        line1="Există un cadou 2-în-1 care face fix asta —"
+        line2="trandafir etern care nu se ofilește niciodată."
+        totalDuration={202}
+        line1Delay={0}
+        line2Delay={91}
+        line1Size={44}
+        line2Size={44}
+      />
+    </Sequence>
+
+    {/* f532–f669 | Bloc 5 | Colier — Whisper ✅ */}
+    {/* line1: "Și în interior, ascuns…"  18.23s = f547 */}
+    {/* line2: "un colier cu inimi împletite."  20.53s = f616 */}
+    <Sequence from={532} durationInFrames={137}>
+      <SubtitleBlock
+        line1="Și în interior, ascuns…"
+        line2="un colier cu inimi împletite."
+        totalDuration={137}
+        line1Delay={0}
+        line2Delay={64}
+        line1Size={50}
+        line2Size={48}
+      />
+    </Sequence>
+
+    {/* f657–f720 | Bloc 6 | Bridge emoțional — Whisper ✅ */}
+    {/* line1: "Va plânge când îl deschide."  22.40s = f672 */}
+    <Sequence from={657} durationInFrames={63}>
+      <SubtitleBlock
+        line1="Va plânge când îl deschide."
+        line2=""
+        totalDuration={63}
+        line1Delay={0}
+        line2Delay={0}
+        line1Size={52}
+        line2Size={50}
+      />
+    </Sequence>
+
+    {/* f0–f48 | Pattern interrupt — hook text overlay */}
+    <Sequence from={0} durationInFrames={48}>
+      <HookTextOverlay
+        line1="Nu i-ai mai luat"
+        line2="NICIODATĂ"
+        line3="un cadou ca ăsta."
+      />
+    </Sequence>
+
+    {/* f450–f510 | Mid-video soft CTA hint (+22% CTR vs end-only) */}
+    <Sequence from={450} durationInFrames={60}>
+      <MidCTAHint />
     </Sequence>
 
     {/* Watermark dinamic — activ pana la CTA */}
-    <Sequence from={0} durationInFrames={630}>
+    <Sequence from={0} durationInFrames={717}>
       <DynamicWatermark />
     </Sequence>
 
-    {/* 21–27s | CTA */}
-    <Sequence from={630} durationInFrames={TOTAL_FRAMES - 630}>
-      <CTAOverlay />
+    {/* f717–f900 | 23.9–30s | CTA */}
+    <Sequence from={717} durationInFrames={TOTAL_FRAMES - 717}>
+      <CTAOverlay
+        tagline={"Cadoul perfect pentru ea —\ntrandafir etern + colier"}
+        discountLabel="-28% AZI"
+        overlayColor="70, 3, 15"
+      />
     </Sequence>
+
+    {/* Voiceover — "voce-bear-gift-ad.MP3" @ 1.31x speed, 29s */}
+    <Audio src={staticFile(`${DIR}/voce-bear-gift-ad.mp3`)} />
   </>
 );
 
 // ==========================================================================
 // Video segments — refolosit in fiecare format
+// Cuts every 2.5–3s. Ken Burns 2–8% + drift alternant stânga/dreapta.
 // ==========================================================================
 //
-//  Seg 1 | f0   – f150  | 5s  | engage.mp4           (cerere in casatorie hook)
-//  Seg 2 | f150 – f300  | 5s  | gift-handover.mp4    (cadou restaurant)
-//  Seg 3 | f300 – f510  | 7s  | bear-closeup-4k @0.25x (slow-mo 4K)
-//  Seg 4 | f510 – f660  | 5s  | bear-youtube.mp4 t=2 (bear + colier reveal)
-//  Seg 5 | f660 – f720  | 2s  | engage.mp4 t=50      (cuplu fericit, inel pus)
-//  Seg 6 | f720 – f900  | 6s  | bear-youtube.mp4 t=7 (beauty shot / CTA bg)
+//  f0   – f75   | 2.5s | engage.mp4              hook, zoom 6%, drift →+12px
+//  f75  – f165  | 3s   | gift-handover.mp4       restaurant, drift ←-8px
+//  f165 – f255  | 3s   | bear-closeup-1080 @.25x slow-mo reveal, drift ↑-6px
+//  f255 – f330  | 2.5s | gift-handover.mp4 t=3   box detail, drift →+8px
+//  f330 – f420  | 3s   | cu-lantisor.mp4         colier reveal, drift ←-8px
+//  f420 – f510  | 3s   | bear-closeup-1080 @.25x t=1, drift →+6px
+//  f510 – f619  | 3.6s | bear-youtube.mp4 t=2    beauty pre-CTA, drift ←-6px
+//  f619 – f870  | 8.4s | bear-youtube.mp4 t=7    CTA background, drift →+4px
 //
 const BearGiftVideos: React.FC = () => (
   <>
-    {/* Segment 1 — Cerere in casatorie hook (0–3s) */}
-    <Sequence from={0} durationInFrames={90}>
-      <Video
+    {/* f0–f75 | 2.5s | hook — zoom agresiv 6%, drift dreapta */}
+    <Sequence from={0} durationInFrames={75}>
+      <ZoomVideo
         src={staticFile(`${DIR}/engage.mp4`)}
-        volume={0}
+        duration={75}
+        zoomAmount={0.06}
+        driftX={12}
         style={ZOOM_ENGAGE}
       />
     </Sequence>
 
-    {/* Segment 2 — Cadou restaurant (3–8s) */}
-    <Sequence from={90} durationInFrames={150}>
-      <Video
+    {/* f75–f165 | 3s | cadou restaurant — drift stânga */}
+    <Sequence from={75} durationInFrames={90}>
+      <ZoomVideo
         src={staticFile(`${DIR}/gift-handover.mp4`)}
-        volume={0}
+        duration={90}
+        driftX={-8}
         style={ZOOM_GIFT}
       />
     </Sequence>
 
-    {/* Segment 3 — 4K slow-mo bear (8–13s) */}
-    <Sequence from={240} durationInFrames={150}>
-      <Video
-        src={staticFile(`${DIR}/bear-closeup-4k.mp4`)}
-        playbackRate={0.25}
-        volume={0}
-        style={ZOOM_CLOSEUP}
+    {/* f165–f269 | 3.5s | cerere în căsătorie — "Vrei să fii a mea?" — drift sus */}
+    <Sequence from={165} durationInFrames={104}>
+      <ZoomVideo
+        src={staticFile(`${DIR}/ask-for-engafe.mp4`)}
+        duration={104}
+        driftY={-6}
+        style={ZOOM_GIFT}
       />
     </Sequence>
 
-    {/* Segment 4 — cu-lantisor (13–18s, clip decupat de user, 30fps normal) */}
-    <Sequence from={390} durationInFrames={150}>
-      <Video
+    {/* f269–f344 | 2.5s | hands-bear — scoate ursuletul din pungă — drift dreapta */}
+    <Sequence from={269} durationInFrames={75}>
+      <ZoomVideo
+        src={staticFile(`${DIR}/hands-bear.mov`)}
+        duration={75}
+        driftX={8}
+        style={ZOOM_GIFT}
+      />
+    </Sequence>
+
+    {/* f344–f434 | 3s | colier reveal — drift stânga */}
+    <Sequence from={344} durationInFrames={90}>
+      <ZoomVideo
         src={staticFile(`${DIR}/cu-lantisor.mp4`)}
-        volume={0}
+        duration={90}
+        driftX={-8}
         style={ZOOM_CLOSEUP}
       />
     </Sequence>
 
-    {/* Segment 5 — CTA background (18–27s, de la 7s in clip) */}
-    <Sequence from={540} durationInFrames={270}>
-      <Video
+    {/* f434–f524 | 3s | bear slow-mo detail (t=1s) — drift dreapta */}
+    <Sequence from={434} durationInFrames={90}>
+      <ZoomVideo
+        src={staticFile(`${DIR}/bear-closeup-1080.mp4`)}
+        duration={90}
+        playbackRate={0.25}
+        trimBefore={1}
+        driftX={6}
+        style={ZOOM_CLOSEUP}
+      />
+    </Sequence>
+
+    {/* f524–f717 | 6.4s | beauty pre-CTA (t=2s) — drift stânga */}
+    <Sequence from={524} durationInFrames={193}>
+      <ZoomVideo
         src={staticFile(`${DIR}/bear-youtube.mp4`)}
+        duration={193}
+        zoomAmount={0.03}
+        trimBefore={2}
+        driftX={-6}
+        style={ZOOM_YOUTUBE}
+      />
+    </Sequence>
+
+    {/* f717–f900 | 6.1s | CTA background (t=7s) — drift subtil */}
+    <Sequence from={717} durationInFrames={TOTAL_FRAMES - 717}>
+      <ZoomVideo
+        src={staticFile(`${DIR}/bear-youtube.mp4`)}
+        duration={TOTAL_FRAMES - 717}
+        zoomAmount={0.02}
         trimBefore={7}
-        volume={0}
+        driftX={4}
         style={ZOOM_YOUTUBE}
       />
     </Sequence>
@@ -509,25 +426,33 @@ export const BearGiftAd_1x1: React.FC = () => {
 
   return (
     <AbsoluteFill style={{ backgroundColor: "#1a000a" }}>
-      {/* Blurred background fill */}
-      <Sequence from={0} durationInFrames={90}>
+      {/* Blurred background fill — mirrors BearGiftVideos timing */}
+      <Sequence from={0} durationInFrames={75}>
         <Video src={staticFile(`${DIR}/engage.mp4`)} volume={0}
           style={{ ...ZOOM_ENGAGE, filter: "blur(22px) brightness(0.35)", transform: "scale(1.2)" }} />
       </Sequence>
-      <Sequence from={90} durationInFrames={150}>
+      <Sequence from={75} durationInFrames={90}>
         <Video src={staticFile(`${DIR}/gift-handover.mp4`)} volume={0}
           style={{ ...ZOOM_GIFT, filter: "blur(22px) brightness(0.35)", transform: "scale(1.7) translateY(-8%)" }} />
       </Sequence>
-      <Sequence from={240} durationInFrames={150}>
-        <Video src={staticFile(`${DIR}/bear-closeup-4k.mp4`)} playbackRate={0.25} volume={0}
-          style={{ ...ZOOM_CLOSEUP, filter: "blur(22px) brightness(0.35)", transform: "scale(1.4)" }} />
+      <Sequence from={165} durationInFrames={104}>
+        <Video src={staticFile(`${DIR}/ask-for-engafe.mp4`)} volume={0}
+          style={{ ...ZOOM_GIFT, filter: "blur(22px) brightness(0.35)", transform: "scale(1.7) translateY(-8%)" }} />
       </Sequence>
-      <Sequence from={390} durationInFrames={150}>
+      <Sequence from={269} durationInFrames={75}>
+        <Video src={staticFile(`${DIR}/hands-bear.mov`)} volume={0}
+          style={{ ...ZOOM_GIFT, filter: "blur(22px) brightness(0.35)", transform: "scale(1.7) translateY(-8%)" }} />
+      </Sequence>
+      <Sequence from={344} durationInFrames={90}>
         <Video src={staticFile(`${DIR}/cu-lantisor.mp4`)} volume={0}
           style={{ ...ZOOM_CLOSEUP, filter: "blur(22px) brightness(0.35)", transform: "scale(1.4)" }} />
       </Sequence>
-      <Sequence from={540} durationInFrames={270}>
-        <Video src={staticFile(`${DIR}/bear-youtube.mp4`)} trimBefore={7} volume={0}
+      <Sequence from={434} durationInFrames={90}>
+        <Video src={staticFile(`${DIR}/bear-closeup-1080.mp4`)} playbackRate={0.25} trimBefore={1} volume={0}
+          style={{ ...ZOOM_CLOSEUP, filter: "blur(22px) brightness(0.35)", transform: "scale(1.4)" }} />
+      </Sequence>
+      <Sequence from={524} durationInFrames={TOTAL_FRAMES - 524}>
+        <Video src={staticFile(`${DIR}/bear-youtube.mp4`)} trimBefore={2} volume={0}
           style={{ ...ZOOM_YOUTUBE, filter: "blur(22px) brightness(0.35)", transform: "scale(1.7) translateY(15%)" }} />
       </Sequence>
 
@@ -563,25 +488,33 @@ export const BearGiftAd_16x9: React.FC = () => {
 
   return (
     <AbsoluteFill style={{ backgroundColor: "#1a000a" }}>
-      {/* Blurred background fill — mirrors BearGiftVideos */}
-      <Sequence from={0} durationInFrames={90}>
+      {/* Blurred background fill — mirrors BearGiftVideos timing */}
+      <Sequence from={0} durationInFrames={75}>
         <Video src={staticFile(`${DIR}/engage.mp4`)} volume={0}
           style={{ ...ZOOM_ENGAGE, filter: "blur(22px) brightness(0.35)", transform: "scale(1.2)" }} />
       </Sequence>
-      <Sequence from={90} durationInFrames={150}>
+      <Sequence from={75} durationInFrames={90}>
         <Video src={staticFile(`${DIR}/gift-handover.mp4`)} volume={0}
           style={{ ...ZOOM_GIFT, filter: "blur(22px) brightness(0.35)", transform: "scale(1.7) translateY(-8%)" }} />
       </Sequence>
-      <Sequence from={240} durationInFrames={150}>
-        <Video src={staticFile(`${DIR}/bear-closeup-4k.mp4`)} playbackRate={0.25} volume={0}
-          style={{ ...ZOOM_CLOSEUP, filter: "blur(22px) brightness(0.35)", transform: "scale(1.4)" }} />
+      <Sequence from={165} durationInFrames={104}>
+        <Video src={staticFile(`${DIR}/ask-for-engafe.mp4`)} volume={0}
+          style={{ ...ZOOM_GIFT, filter: "blur(22px) brightness(0.35)", transform: "scale(1.7) translateY(-8%)" }} />
       </Sequence>
-      <Sequence from={390} durationInFrames={150}>
+      <Sequence from={269} durationInFrames={75}>
+        <Video src={staticFile(`${DIR}/hands-bear.mov`)} volume={0}
+          style={{ ...ZOOM_GIFT, filter: "blur(22px) brightness(0.35)", transform: "scale(1.7) translateY(-8%)" }} />
+      </Sequence>
+      <Sequence from={344} durationInFrames={90}>
         <Video src={staticFile(`${DIR}/cu-lantisor.mp4`)} volume={0}
           style={{ ...ZOOM_CLOSEUP, filter: "blur(22px) brightness(0.35)", transform: "scale(1.4)" }} />
       </Sequence>
-      <Sequence from={540} durationInFrames={270}>
-        <Video src={staticFile(`${DIR}/bear-youtube.mp4`)} trimBefore={7} volume={0}
+      <Sequence from={434} durationInFrames={90}>
+        <Video src={staticFile(`${DIR}/bear-closeup-1080.mp4`)} playbackRate={0.25} trimBefore={1} volume={0}
+          style={{ ...ZOOM_CLOSEUP, filter: "blur(22px) brightness(0.35)", transform: "scale(1.4)" }} />
+      </Sequence>
+      <Sequence from={524} durationInFrames={TOTAL_FRAMES - 524}>
+        <Video src={staticFile(`${DIR}/bear-youtube.mp4`)} trimBefore={2} volume={0}
           style={{ ...ZOOM_YOUTUBE, filter: "blur(22px) brightness(0.35)", transform: "scale(1.7) translateY(15%)" }} />
       </Sequence>
 

@@ -6,6 +6,12 @@ import { FacebookAd } from "./FacebookAd";
 import { FacebookAd16x9 } from "./FacebookAd16x9";
 import { FacebookAd2, FacebookAd2_1x1, FacebookAd2_16x9 } from "./FacebookAd2";
 import { BearGiftAd, BearGiftAd_4x5, BearGiftAd_1x1, BearGiftAd_16x9 } from "./BearGiftAd";
+import {
+  UrsuletTrandafirEternAd,
+  UrsuletTrandafirEternAd_4x5,
+  UrsuletTrandafirEternAd_1x1,
+  UrsuletTrandafirEternAd_16x9,
+} from "./UrsuletTrandafirEternAd";
 
 export const RemotionRoot: React.FC = () => {
   return (
@@ -91,9 +97,41 @@ export const RemotionRoot: React.FC = () => {
         height={1080}
       />
       <Composition
+        id="UrsuletTrandafirEternAd-4x5"
+        component={UrsuletTrandafirEternAd_4x5}
+        durationInFrames={660}
+        fps={30}
+        width={1080}
+        height={1350}
+      />
+      <Composition
+        id="UrsuletTrandafirEternAd-9x16"
+        component={UrsuletTrandafirEternAd}
+        durationInFrames={660}
+        fps={30}
+        width={1080}
+        height={1920}
+      />
+      <Composition
+        id="UrsuletTrandafirEternAd-1x1"
+        component={UrsuletTrandafirEternAd_1x1}
+        durationInFrames={660}
+        fps={30}
+        width={1080}
+        height={1080}
+      />
+      <Composition
+        id="UrsuletTrandafirEternAd-16x9"
+        component={UrsuletTrandafirEternAd_16x9}
+        durationInFrames={660}
+        fps={30}
+        width={1920}
+        height={1080}
+      />
+      <Composition
         id="BearGiftAd-4x5"
         component={BearGiftAd_4x5}
-        durationInFrames={810}
+        durationInFrames={900}
         fps={30}
         width={1080}
         height={1350}
@@ -101,7 +139,7 @@ export const RemotionRoot: React.FC = () => {
       <Composition
         id="BearGiftAd-9x16"
         component={BearGiftAd}
-        durationInFrames={810}
+        durationInFrames={900}
         fps={30}
         width={1080}
         height={1920}
@@ -109,7 +147,7 @@ export const RemotionRoot: React.FC = () => {
       <Composition
         id="BearGiftAd-1x1"
         component={BearGiftAd_1x1}
-        durationInFrames={810}
+        durationInFrames={900}
         fps={30}
         width={1080}
         height={1080}
@@ -117,7 +155,7 @@ export const RemotionRoot: React.FC = () => {
       <Composition
         id="BearGiftAd-16x9"
         component={BearGiftAd_16x9}
-        durationInFrames={810}
+        durationInFrames={900}
         fps={30}
         width={1920}
         height={1080}

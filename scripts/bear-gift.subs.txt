@@ -1,0 +1,25 @@
+# Bear Gift Ad — subtitle script (logodnă theme, high-converting structure)
+# Format: perechi de linii, separate prin linie goală
+# CTA_START = de aici începe overlay-ul CTA
+# Hook text overlay (f0–f48) e separat în cod: "Nu i-ai mai luat NICIODATĂ / un cadou ca ăsta."
+
+Cauți cadoul perfect pentru ea?
+Unul pe care chiar nu-l va uita.
+
+Pentru momentul în care vrei să spui…
+"Vrei să fii a mea?"
+
+E greu să găsești ceva
+care să spună tot ce simți.
+
+Există un cadou 2-în-1 care face fix asta —
+trandafir etern care nu se ofilește niciodată.
+
+Și în interior, ascuns…
+un colier cu inimi împletite.
+
+Va plânge când îl deschide.
+
+CTA_START
+Acum cu -28% reducere, stoc limitat.
+Comandă acum pe Azora.ro!
