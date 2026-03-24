@@ -51,7 +51,9 @@ const ZOOM_STD = {
 };
 const ZOOM_GIFT = {
   ...ZOOM_STD,
-  transform: "scale(1.15)",
+  // scale(1.35): crop ~17% per margine — elimină textul YouTube/TikTok de sus
+  // translateY(-9%): shift suplimentar în sus pentru a tăia overlay-ul de sus
+  transform: "scale(1.35) translateY(-9%)",
 };
 const ZOOM_MONTOVA = {
   ...ZOOM_STD,

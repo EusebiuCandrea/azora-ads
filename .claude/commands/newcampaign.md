@@ -101,12 +101,31 @@ Salvează ca: `DURATION` (implicit 900 frames = 30s)
 
 ---
 
-### Q9 — Tema emoțională / Hook
-> "Care e emoția principală sau mesajul hook pentru primele 3 secunde? (ex: logodnă și surpriză / îngrijire de sine / cadou unic)
+### Q9 — Textul de start (HookTextOverlay)
+> "Care sunt cele 3 linii scurte care apar în primele 1.5s pe ecran — textul mare, de impact?
 >
-> Aceasta va deveni textul HookTextOverlay — 3 linii scurte, impact maxim."
+> **Important:** trebuie să fie **diferit** de voiceover — un mesaj vizual complementar, nu repetarea a ceea ce se aude.
+> Max 3–4 cuvinte per linie. (ex: 'Redă-ți / SILUETA / de dinainte' sau 'Cel mai bun / CADOU / pentru ea')"
 
-Salvează ca: `HOOK_THEME`
+Salvează ca: `HOOK_TEXT` (3 linii: `line1`, `line2`, `line3`)
+
+---
+
+### Q10 — Scriptul voiceover
+> "Ai deja un script pentru voiceover, sau să te ajut eu să scriu unul?"
+
+- Dacă **are script** → îl salvează ca `VOICEOVER_SCRIPT`, trece mai departe.
+- Dacă **vrea ajutor** → pune întrebarea:
+
+> "Trimite-mi descrierea produsului — poți lipi textul direct sau un link către pagina de produs (Shopify, site, etc.)."
+
+  - Dacă trimite **link** → folosește WebFetch pentru a extrage descrierea, beneficiile și specificațiile.
+  - Dacă trimite **text** → folosește direct.
+  - Pe baza descrierii + `TARGET_AUDIENCE` + `DURATION`, scrie scriptul structurat PAS (Problem–Agitate–Solution), cu `CTA_START` marcat.
+  - Afișează scriptul și întreabă: "Îți place sau vrei să ajustez ceva?"
+  - **Așteaptă confirmarea/ajustările** înainte să treacă mai departe.
+
+Salvează ca: `VOICEOVER_SCRIPT`, `PRODUCT_DESCRIPTION`
 
 ---
 
@@ -124,7 +143,8 @@ Afișează un rezumat compact:
   Reducere:     [DISCOUNT_LABEL]
   Public:       [TARGET_AUDIENCE]
   Durata:       [DURATION]
-  Hook tema:    [HOOK_THEME]
+  Hook text:    [HOOK_TEXT line1 / line2 / line3]
+  Script:       [primele 10 cuvinte din VOICEOVER_SCRIPT...]
 ```
 
 Întreabă: **"Totul e corect? Pot să încep?"**
@@ -140,7 +160,7 @@ Urmează pașii din `docs/new-campaign.md` în ordine:
 
 ### Pas 1 — Script subtitluri
 Dacă voiceover-ul NU există încă:
-- Scrie `scripts/[SLUG].subs.txt` bazat pe HOOK_THEME și structura PAS (Problem-Agitate-Solution)
+- Scrie `scripts/[SLUG].subs.txt` din `VOICEOVER_SCRIPT` confirmat, formatat cu blocuri de 2 linii + `CTA_START`
 - Spune utilizatorului: "Generează voiceover-ul în ElevenLabs din textul de mai jos, salvează-l ca `public/ads/[SLUG]/voce-[SLUG].mp3`, apoi spune-mi când e gata."
 - **Așteaptă confirmarea** că fișierul audio e salvat.
 
@@ -154,11 +174,14 @@ ffprobe -v quiet -show_entries format=duration -of csv=p=0 public/ads/[SLUG]/cli
 Rulează pentru fiecare clip cu `trimBefore` planificat.
 
 ### Pas 3 — Creează componenta
+Citește `docs/new-campaign.md` secțiunea **Pasul 4** și **Referință rapidă — Componente reutilizabile** pentru structura de cod. Dacă ai nevoie de un exemplu concret de sintaxă, citește cel mai recent fișier `src/*Ad.tsx` din proiect (folosește `ls -t src/*Ad.tsx | head -1` pentru a-l găsi) — **doar pentru structura de cod**: imports, SubtitleBlock, ZoomVideo, blurred backdrop pattern. **Nu copia clipuri, subtitluri, timing-uri sau conținut specific** — acestea sunt ale campaniei noi.
+
 Creează `src/[NumePascalCase]Ad.tsx` complet cu:
 - `TOTAL_FRAMES`, `DIR`, `FADE_OUT`
-- `[Name]Videos` cu Ken Burns + drift alternant
+- `[Name]Videos` cu Ken Burns + drift alternant — segmente bazate pe clipurile și duratele REALE ale campaniei noi
 - `[Name]AdOverlay` cu subtitluri din sync script + HookTextOverlay + MidCTAHint + DynamicWatermark + CTAOverlay (cu CURRENT_PRICE, ORIGINAL_PRICE, DISCOUNT_LABEL dacă sunt setate)
 - Export 9x16 (default), `_4x5` (alias), `_1x1` (blurred backdrop), `_16x9` (blurred backdrop)
+- **Blurred backdrop** trebuie să oglindească exact segmentele din `[Name]Videos` — dacă schimbi un clip, actualizează și în `_1x1` și `_16x9`
 
 ### Pas 4 — Înregistrează în Root.tsx
 Adaugă import + 4 `<Composition>` cu dimensiunile corecte.

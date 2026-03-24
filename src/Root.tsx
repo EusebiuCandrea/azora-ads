@@ -12,6 +12,12 @@ import {
   UrsuletTrandafirEternAd_1x1,
   UrsuletTrandafirEternAd_16x9,
 } from "./UrsuletTrandafirEternAd";
+import {
+  ModelareCorporalaAd,
+  ModelareCorporalaAd_4x5,
+  ModelareCorporalaAd_1x1,
+  ModelareCorporalaAd_16x9,
+} from "./ModelareCorporalaAd";
 
 export const RemotionRoot: React.FC = () => {
   return (
@@ -156,6 +162,38 @@ export const RemotionRoot: React.FC = () => {
         id="BearGiftAd-16x9"
         component={BearGiftAd_16x9}
         durationInFrames={900}
+        fps={30}
+        width={1920}
+        height={1080}
+      />
+      <Composition
+        id="ModelareCorporalaAd-4x5"
+        component={ModelareCorporalaAd_4x5}
+        durationInFrames={720}
+        fps={30}
+        width={1080}
+        height={1350}
+      />
+      <Composition
+        id="ModelareCorporalaAd-9x16"
+        component={ModelareCorporalaAd}
+        durationInFrames={720}
+        fps={30}
+        width={1080}
+        height={1920}
+      />
+      <Composition
+        id="ModelareCorporalaAd-1x1"
+        component={ModelareCorporalaAd_1x1}
+        durationInFrames={720}
+        fps={30}
+        width={1080}
+        height={1080}
+      />
+      <Composition
+        id="ModelareCorporalaAd-16x9"
+        component={ModelareCorporalaAd_16x9}
+        durationInFrames={720}
         fps={30}
         width={1920}
         height={1080}

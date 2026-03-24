@@ -12,25 +12,21 @@ Scrie perechile de linii în română. Fiecare pereche = un bloc de subtitle.
 Linie goală = separator între blocuri. `CTA_START` marchează unde apare overlay-ul CTA.
 
 ```
-Cauți cadoul perfect pentru ea?
-Unul pe care chiar nu-l va uita.
+Hook — prima frază care captează atenția?
 
-Pentru momentul în care vrei să spui…
-"Vrei să fii a mea?"
+Linie de tensiune sau problemă.
+Linie de agravare sau context.
 
-E greu să găsești ceva
-care să spună tot ce simți.
+Beneficiu principal al produsului —
+ce îl face unic.
 
-Există un cadou 2-în-1 care face fix asta —
-trandafir etern care nu se ofilește niciodată.
+Al doilea beneficiu.
+Detaliu suplimentar.
 
-Și în interior, ascuns…
-un colier cu inimi împletite.
-
-Va plânge când îl deschide.
+Concluzie emoțională scurtă.
 
 CTA_START
-Acum cu -28% reducere, stoc limitat.
+Acum cu reducere, stoc limitat.
 Comandă acum pe Azora.ro!
 ```
 
@@ -63,6 +59,25 @@ python3 scripts/sync-subtitles.py \
   scripts/<slug>.subs.txt
 ```
 
+**Re-sync direct în fișierul TSX (opțional):**
+
+Adaugă markerii în componenta `.tsx`, în jurul blocurilor de subtitluri:
+```tsx
+{/* ── SUBTITLE_BLOCKS_START ── */}
+... (toate <Sequence> de subtitluri) ...
+{/* ── SUBTITLE_BLOCKS_END ── */}
+```
+
+Apoi rulează cu `--write`:
+```bash
+python3 scripts/sync-subtitles.py \
+  public/ads/<slug>/voce-<slug>.mp3 \
+  scripts/<slug>.subs.txt \
+  --write=src/<NumePascalCase>Ad.tsx
+```
+
+Scriptul înlocuiește automat tot ce e între markeri. Fără angle brackets `<>` — treci calea directă.
+
 **Ce face scriptul:**
 - Rulează Whisper pentru word-level timestamps
 - Generează `<Sequence>/<SubtitleBlock>` blocks gata de copiat în cod
@@ -81,7 +96,7 @@ python3 scripts/sync-subtitles.py \
 
 **Fișier nou:** `src/<NumePascalCase>Ad.tsx`
 
-Folosește `BearGiftAd.tsx` ca referință completă. Structura obligatorie:
+Structura obligatorie (citește un ad existent pentru pattern-ul de cod, nu pentru conținut specific):
 
 ```tsx
 const TOTAL_FRAMES = 900; // din TOTAL_FRAMES sugerat de script
@@ -100,13 +115,13 @@ ffprobe -v quiet -show_entries format=duration -of csv=p=0 public/ads/<slug>/cli
 ### 4b — Structura video segments
 
 ```tsx
-const BearGiftVideos: React.FC = () => (
+const <Name>Videos: React.FC = () => (
   <>
-    {/* f0–f75 | hook — zoom 6%, drift dreapta */}
-    <Sequence from={0} durationInFrames={75}>
-      <ZoomVideo src={staticFile(`${DIR}/clip1.mp4`)} duration={75} zoomAmount={0.06} driftX={12} style={ZOOM_STYLE} />
+    {/* f0–f90 | hook — zoom 6%, drift dreapta */}
+    <Sequence from={0} durationInFrames={90}>
+      <ZoomVideo src={staticFile(`${DIR}/clip1.mp4`)} duration={90} zoomAmount={0.06} driftX={12} style={ZOOM_STYLE} />
     </Sequence>
-    {/* f75–f165 | ... */}
+    {/* f90–f... | ... */}
     ...
   </>
 );
@@ -122,7 +137,7 @@ const BearGiftVideos: React.FC = () => (
 
 ### 4c — Copiază codul de subtitluri din scriptul de sync
 
-Copiază outputul din Pasul 3 în funcția `BearGiftAdOverlay`.
+Copiază outputul din Pasul 3 în funcția `<Name>AdOverlay`, între markerii `SUBTITLE_BLOCKS_START` și `SUBTITLE_BLOCKS_END`.
 
 **Verifică după copiere:**
 1. Niciun `durationInFrames` negativ sau zero
@@ -150,8 +165,8 @@ Copiază outputul din Pasul 3 în funcția `BearGiftAdOverlay`.
 {/* CTA overlay ultimele ~6s */}
 <Sequence from={CTA_START} durationInFrames={TOTAL_FRAMES - CTA_START}>
   <CTAOverlay
-    tagline={"Cadoul perfect —\nprodus + beneficiu"}
-    discountLabel="-28% AZI"   {/* opțional, elimină dacă nu e discount */}
+    tagline={"Numele produsului —\nbeneficiu principal"}
+    discountLabel="-X% AZI"   {/* opțional, elimină dacă nu e discount */}
   />
 </Sequence>
 
@@ -203,7 +218,7 @@ npm run dev
 **Ce verifici:**
 - [ ] Subtitlurile apar **în același timp** cu vocea (nu înainte, nu după)
 - [ ] Niciun clip negru sau freeze (trimBefore depășit)
-- [ ] ask-for-engage sau clipuri speciale apar la momentul narativ corect
+- [ ] Clipurile apar la momentul narativ corect față de voiceover
 - [ ] Textul nu e acoperit de UI Meta (safe zone 22.5% bottom)
 - [ ] CTA overlay apare când vocea tace (după ultimul subtitle)
 - [ ] Toate 4 formatele arată bine
@@ -243,8 +258,8 @@ Setează `from` al blocului curent >= `from + durationInFrames` al blocului ante
 ### ❌ Clipul 1x1 sau 16x9 e dezsinronizat față de 9x16
 Blurred backdrop din `_1x1`/`_16x9` nu reflectă segmentele din MyVideos. Actualizează ambele.
 
-### ❌ Subtitlul "Vrei să fii a mea?" dispare prea repede
-Extinde `durationInFrames` al blocului să acopere durata clipului video asociat (nu durata din audio).
+### ❌ Un subtitlu dispare prea repede
+Extinde `durationInFrames` al blocului să acopere durata clipului video asociat (nu doar durata din audio).
 
 ---
 
