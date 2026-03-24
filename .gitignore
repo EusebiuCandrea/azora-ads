@@ -1,0 +1,34 @@
+# Dependencies
+node_modules
+
+# Build output
+dist
+out
+
+# Remotion cache
+.remotion
+
+# Environment
+.env
+.env.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.idea
+*.swp
+
+# ── Assets ────────────────────────────────────────────────────────────────────
+# Ignore all video/audio in campaign folders (prea mari pentru git)
+public/ads/**/*.mp4
+public/ads/**/*.mov
+public/ads/**/*.avi
+public/ads/**/*.webm
+public/ads/**/*.mp3
+public/ads/**/*.wav
+public/ads/**/*.aac
+
+# Brand assets (logos, watermark) — rămân în git
+!public/brand/

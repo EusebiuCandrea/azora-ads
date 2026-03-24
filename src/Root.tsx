@@ -1,0 +1,127 @@
+import "./index.css";
+import { Composition } from "remotion";
+import { MyComposition } from "./Composition";
+import { AzoraAd } from "./AzoraAd";
+import { FacebookAd } from "./FacebookAd";
+import { FacebookAd16x9 } from "./FacebookAd16x9";
+import { FacebookAd2, FacebookAd2_1x1, FacebookAd2_16x9 } from "./FacebookAd2";
+import { BearGiftAd, BearGiftAd_4x5, BearGiftAd_1x1, BearGiftAd_16x9 } from "./BearGiftAd";
+
+export const RemotionRoot: React.FC = () => {
+  return (
+    <>
+      <Composition
+        id="MyComp"
+        component={MyComposition}
+        durationInFrames={60}
+        fps={30}
+        width={1280}
+        height={720}
+      />
+      <Composition
+        id="AzoraAd"
+        component={AzoraAd}
+        durationInFrames={620}
+        fps={30}
+        width={1080}
+        height={1920}
+      />
+      <Composition
+        id="FacebookAd-9x16"
+        component={FacebookAd}
+        durationInFrames={950}
+        fps={30}
+        width={1080}
+        height={1920}
+      />
+      <Composition
+        id="FacebookAd-4x5"
+        component={FacebookAd}
+        durationInFrames={950}
+        fps={30}
+        width={1080}
+        height={1350}
+      />
+      <Composition
+        id="FacebookAd-1x1"
+        component={FacebookAd}
+        durationInFrames={950}
+        fps={30}
+        width={1080}
+        height={1080}
+      />
+      <Composition
+        id="FacebookAd-16x9"
+        component={FacebookAd16x9}
+        durationInFrames={950}
+        fps={30}
+        width={1920}
+        height={1080}
+      />
+      <Composition
+        id="FacebookAd2-9x16"
+        component={FacebookAd2}
+        durationInFrames={1055}
+        fps={30}
+        width={1080}
+        height={1920}
+      />
+      <Composition
+        id="FacebookAd2-4x5"
+        component={FacebookAd2}
+        durationInFrames={1055}
+        fps={30}
+        width={1080}
+        height={1350}
+      />
+      <Composition
+        id="FacebookAd2-1x1"
+        component={FacebookAd2_1x1}
+        durationInFrames={1055}
+        fps={30}
+        width={1080}
+        height={1080}
+      />
+      <Composition
+        id="FacebookAd2-16x9"
+        component={FacebookAd2_16x9}
+        durationInFrames={1055}
+        fps={30}
+        width={1920}
+        height={1080}
+      />
+      <Composition
+        id="BearGiftAd-4x5"
+        component={BearGiftAd_4x5}
+        durationInFrames={810}
+        fps={30}
+        width={1080}
+        height={1350}
+      />
+      <Composition
+        id="BearGiftAd-9x16"
+        component={BearGiftAd}
+        durationInFrames={810}
+        fps={30}
+        width={1080}
+        height={1920}
+      />
+      <Composition
+        id="BearGiftAd-1x1"
+        component={BearGiftAd_1x1}
+        durationInFrames={810}
+        fps={30}
+        width={1080}
+        height={1080}
+      />
+      <Composition
+        id="BearGiftAd-16x9"
+        component={BearGiftAd_16x9}
+        durationInFrames={810}
+        fps={30}
+        width={1920}
+        height={1080}
+      />
+    </>
+  );
+};
