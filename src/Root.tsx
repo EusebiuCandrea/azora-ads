@@ -13,6 +13,12 @@ import {
   UrsuletTrandafirEternAd_16x9,
 } from "./UrsuletTrandafirEternAd";
 import {
+  UrsuletTrandafirEternAd2,
+  UrsuletTrandafirEternAd2_4x5,
+  UrsuletTrandafirEternAd2_1x1,
+  UrsuletTrandafirEternAd2_16x9,
+} from "./UrsuletTrandafirEternAd2";
+import {
   ModelareCorporalaAd,
   ModelareCorporalaAd_4x5,
   ModelareCorporalaAd_1x1,
@@ -130,6 +136,38 @@ export const RemotionRoot: React.FC = () => {
         id="UrsuletTrandafirEternAd-16x9"
         component={UrsuletTrandafirEternAd_16x9}
         durationInFrames={660}
+        fps={30}
+        width={1920}
+        height={1080}
+      />
+      <Composition
+        id="UrsuletTrandafirEternAd2-4x5"
+        component={UrsuletTrandafirEternAd2_4x5}
+        durationInFrames={450}
+        fps={30}
+        width={1080}
+        height={1350}
+      />
+      <Composition
+        id="UrsuletTrandafirEternAd2-9x16"
+        component={UrsuletTrandafirEternAd2}
+        durationInFrames={450}
+        fps={30}
+        width={1080}
+        height={1920}
+      />
+      <Composition
+        id="UrsuletTrandafirEternAd2-1x1"
+        component={UrsuletTrandafirEternAd2_1x1}
+        durationInFrames={450}
+        fps={30}
+        width={1080}
+        height={1080}
+      />
+      <Composition
+        id="UrsuletTrandafirEternAd2-16x9"
+        component={UrsuletTrandafirEternAd2_16x9}
+        durationInFrames={450}
         fps={30}
         width={1920}
         height={1080}

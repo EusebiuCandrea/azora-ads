@@ -25,6 +25,66 @@ Every campaign must export these 4 compositions:
 
 ---
 
+## Creative Strategy — Research-Based Rules (STRICT)
+
+> These rules come from performance data on Meta video ads 2024–2025. They are **mandatory** for all new campaigns. Do not deviate without explicit user instruction.
+
+### Video Duration
+- **Gift/emotional products (ursulet, bijuterie, cadou):** 15–20 seconds sweet spot. Use **450 frames (15s)** as default for new short-form campaigns.
+- **Products requiring explanation (gadgets, skincare):** 30–35s maximum. Never exceed 60s for conversion campaigns.
+- **Reels 9:16:** Target 7–15s. Algorithm rewards loop views — a 12s video watched 3× = 36s engagement signal.
+- **Stories 9:16:** 6–10s per card. Drop-off is massive after 8s on a single card.
+
+### Hook — First 3 Seconds (CRITICAL)
+- **Text must appear at f0** — never delay the hook. No animated logo intros.
+- **Show the product OR a strong emotional trigger in the first 3 seconds.** For impulse-buy products: product first. For emotional products: problem/desire hook first, product reveal at 3–8s.
+- **Thumb-stop rate target: >30%.** If the first 3s don't create curiosity or surprise, the algorithm stops distributing.
+- Pattern interrupt techniques that work:
+  - Large bold centered text on f0 (scale pop-in animation)
+  - Extreme close-up of the product in slow-mo as first clip
+  - Direct question: "Cauți cadoul perfect pentru ea?"
+  - Breaking fourth wall: "Stai, nu da scroll încă..."
+  - Shocking number/stat: "87% din cupluri uită să..."
+
+### Subtitle / Caption Style
+- **Pill background on text** (`rgba(0,0,0,0.65)`, `borderRadius: 16px`) increases readability ~40% vs text-on-gradient. Preferred for new campaigns.
+- **Native caption style** (karaoke word-by-word or block sync with audio) increases watch time 12–28%.
+- **Text animation: pop-in** — `scale(0.7→1)` with `Easing.out(Easing.back(1.5))` + simultaneous fade-in (8 frames). NOT slow typewriter or rotation.
+- Each subtitle block: minimum 1.5s on screen, maximum 3–4s. Change text in sync with video cuts.
+- Safe zone: `height * 0.225` paddingBottom — unchanged.
+
+### Video Pacing
+- **Emotional/gift products:** cut every **2–2.5s** (60–75 frames). NOT 3s as in older campaigns.
+- **Never more than 5s without a visual change** (cut, zoom, new text, or in-frame motion).
+- **Ken Burns:** zoom 6% per clip for hook clips, 4% for middle, 2–3% for CTA background. More aggressive than earlier campaigns.
+- **Slow-motion:** max 2–3 continuous seconds. Use for product detail (texture, jewelry catch light, reaction moments). Never on clips with active text overlays.
+- **Do not use Ken Burns** on clips that already have strong internal motion — causes motion sickness.
+
+### Gradients
+- **Avoid heavy full-height bottom gradients** (old style: `rgba(...) 0%–70%`). They look corporate and trigger ad-blindness.
+- If a gradient is needed for text legibility, limit to **25–30% of canvas height** directly under the text area.
+- Preferred alternative: pill background on text + `DepthVignette` for cinematic depth.
+
+### CTA Overlay
+- **Appear at 70–80% of video duration.** For 15s video: CTA at f270–f300 (9–10s).
+- CTA must remain visible for **minimum 3 seconds** (last frame is most-viewed due to loop).
+- **Add logistic benefit to CTA button text:** "Comandă acum — livrare în 24h" converts 15–25% better than generic "Comandă acum".
+- FOMO/urgency text ("Stoc limitat") works but use only if true — damages brand trust long-term if false.
+
+### Emotional Triggers for Gift Products
+- Show the **recipient's reaction** (unboxing, surprise), not just the product — simulates joy for buyer.
+- "Frica de a dezamăgi" hook: "Nu știi ce să-i dai?" validates anxiety, positions product as safe choice.
+- Nostalgia angle (warm colors, soft lighting) works for plush toys and handmade gifts.
+- Social proof text ("X clienți mulțumiți") reduces perceived risk for products >80–100 RON.
+
+### UGC vs Polished
+- For **cold audience (prospecting):** "Polished UGC" hybrid — quality production but informal aesthetic (no corporate gradients, native caption style, real voice).
+- For **retargeting (warm audience):** testimonial-style overlays ("X mame au ales asta în 2024").
+- Pure polished/studio style only for premium products >200 RON or brand awareness.
+- Rotate creatives every **7–10 days** — CTR drops 20–40% after that window.
+
+---
+
 ## Conventions
 
 ### Timing

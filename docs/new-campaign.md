@@ -1,6 +1,94 @@
 # Ghid complet — Campanie Nouă Azora Ads
 
 > Urmează pașii **în ordine**. Fiecare pas depinde de cel anterior.
+> Regulile din secțiunea **Creative Strategy** (CLAUDE.md) sunt obligatorii pentru orice campanie nouă.
+
+---
+
+## REFERINȚĂ CREATIVĂ — Meta Video Ads 2024-2025
+
+> Aceasta este referința strictă bazată pe date de performanță. **Nu devia fără motiv explicit.**
+
+### Durata video
+
+| Format | Durata optimă | Note |
+|--------|--------------|------|
+| Feed 4:5 | **15–20s** pentru produse cadou | Sweet spot conversie |
+| Reels 9:16 | **7–15s** | CPM cu 20–35% mai mic; algoritmul recompensează loop-ul |
+| Stories 9:16 | **6–10s/card** | Drop-off masiv după 8s pe un singur card |
+| Produse complexe | max 30–35s | Gadgeturi, skincare cu claim-uri. Niciodată >60s pentru conversie |
+
+**Default pentru campanii noi: 450 frames (15s).**
+
+### Hook — Primele 3 secunde (CRITIC)
+
+- **Textul apare la f0** — fără delay, fără animație de intro cu logo
+- **Thumb-stop rate țintă: >30%** — dacă primele 3s nu creează curiozitate, algoritmul oprește distribuția
+- **Produse impulse-buy:** produsul în primul frame. **Produse emoționale:** hook problemă/dorință → reveal produs la 3–8s
+- Tehnici pattern interrupt cu performanță ridicată:
+  - Text mare bold centrat la f0 cu animație pop-in (scale 0.7→1, back easing, 8 frames)
+  - Extreme close-up produs în slow-mo ca primul clip
+  - Întrebare directă: *"Cauți cadoul perfect pentru ea?"*
+  - Breaking fourth wall: *"Stai, nu da scroll încă..."*
+  - Cifră/statistică: *"87% din cupluri uită să..."*
+
+### Text overlays — Stilul care convertește
+
+- **Pill background** (`rgba(0,0,0,0.65)`, `borderRadius: 16px`) în loc de gradient greu — crește lizibilitatea cu ~40%
+- **Animație pop-in:** `scale(0.7→1)` + fade simultan (8 frames, `Easing.out(Easing.back(1.5))`)
+- Durata unui bloc de text: **minim 1.5s, maxim 3–4s** pe ecran
+- Schimbarea textului — sincronizată cu cut-ul video, nu la mijlocul unui clip
+- **Native caption style** (karaoke sync cu audio) crește watch time cu 12–28%
+
+### Pacing video
+
+- **Produse cadou/emoționale:** cut la **2–2.5s** (60–75 frames) — NU 3s ca în campaniile vechi
+- Niciodată >5s fără schimbare vizuală (cut, zoom, text nou sau mișcare în cadru)
+- **Ken Burns:** 6% zoom pe hook, 4% middle, 2–3% pe CTA background — mai agresiv decât anterior
+- **Slow-motion:** max 2–3s continuu. Pentru detalii produs (textură, lumina pe bijuterie). NU pe clipuri cu text activ
+
+### Gradiente
+
+- **Evită gradienți grei full-height** (stilul vechi `rgba(...) 0%–70%`) — par corporate, declanșează ad-blindness
+- Dacă e necesar gradient: **max 25–30% din înălțimea canvas-ului**, doar sub text
+- Preferat: pill background pe text + `DepthVignette` pentru adâncime cinematică
+
+### CTA
+
+- Apare la **70–80% din durată** (pentru 15s: f270–f300)
+- Rămâne vizibil **minim 3s** (ultimul frame e cel mai vizionat datorită loop-ului)
+- **Text buton cu beneficiu logistic:** *"Comandă acum — livrare în 24h"* (+15–25% CTR față de CTA generic)
+- Urgență (*"Stoc limitat"*) funcționează dar nu o folosi dacă nu e reală — deteriorează încrederea
+
+### Triggere emoționale — produse cadou
+
+- Arată **reacția primitorului** (unboxing, surpriză) — nu doar produsul. Cumpărătorul simulează bucuria celuilalt.
+- Hook *"frica de a dezamăgi"*: *"Nu știi ce să-i dai?"* → validează anxietatea, produsul = soluția sigură
+- Nostalgie (culori calde, lumină moale) — eficient pentru plusuri și cadouri handmade
+- Proof social (*"X clienți mulțumiți"*) — esențial pentru produse >80–100 RON
+
+### UGC vs Polished
+
+| Audiență | Abordare recomandată | CTR mediu |
+|----------|---------------------|-----------|
+| Cold (prospecting) | Polished UGC — calitate medie, estetica informală, voce reală | 1.4–2.2% |
+| Warm (retargeting) | Testimonial style + CTA urgent | 1.8–2.8% |
+| Premium (>200 RON) | Polished production | 0.9–1.5% |
+
+**"Polished UGC":** calitate tehnică bună, dar fără gradienți corporatiști, cu subtitrare nativă și voce reală.
+Rotează creativele la **7–10 zile** — CTR scade 20–40% după această fereastră.
+
+### Benchmark-uri de performanță (referință)
+
+| Metrică | Valoare bună | Valoare excelentă |
+|---------|-------------|-------------------|
+| Thumb-stop rate (>3s) | >30% | >40% |
+| CTR Feed | >1.2% | >1.8% |
+| CTR Reels | >1.5% | >2.5% |
+| CVR (click→cumpărare) | >2% | >3.5% |
+| View-through 75%+ | >8% | >15% |
+
+---
 
 ---
 
@@ -35,6 +123,8 @@ Comandă acum pe Azora.ro!
 - Linie unică → lasă line2 goală
 - Textul de după `CTA_START` e citit de Whisper doar pentru a detecta frame-ul de start CTA
 - Română cu diacritice corecte: ș ț ă î â
+- **Durata voiceover:** pentru campanii 15s, voiceover-ul de conținut trebuie să fie maxim 9–10s (CTA acoperă ultimele 5–6s fără voce)
+- **Primul bloc = hook puternic** — problemă, întrebare directă, sau pattern interrupt. Textul apare la f0.
 
 ---
 
@@ -128,11 +218,13 @@ const <Name>Videos: React.FC = () => (
 ```
 
 **Reguli segmente video:**
-- Cuts la fiecare **2.5–3s** (75–90 frames)
+- Cuts la fiecare **2–2.5s** (60–75 frames) — NU 3s. Pacing mai rapid = mai mult engagement
 - `zoomAmount`: 0.06 hook, 0.04 middle, 0.02–0.03 CTA bg
 - `driftX` alternant: +12, -8, +8, -8, +6, -6, +4
 - `driftY={-6}` pe slow-mo în loc de driftX
 - `playbackRate={0.25}` **doar** pe clipuri 120fps 4K
+- **Primul clip = produsul** (close-up sau slow-mo reveal) pentru campanii short-form 15s
+- **Slow-mo:** max 2–3s continuu; NU pe clipuri cu text activ pe ecran
 - **Dacă folosești același clip de 2 ori:** asigură-te că `trimBefore` al doilea e valid (verifică cu ffprobe)
 
 ### 4c — Copiază codul de subtitluri din scriptul de sync
@@ -152,8 +244,9 @@ Copiază outputul din Pasul 3 în funcția `<Name>AdOverlay`, între markerii `S
   <HookTextOverlay line1="..." line2="..." line3="..." />
 </Sequence>
 
-{/* ~f450: mid-video soft CTA */}
-<Sequence from={450} durationInFrames={60}>
+{/* Mid-video soft CTA — la ~50% din durată, NU fix la f450 pentru campanii scurte */}
+{/* Ex: campanie 15s (450f) → MidCTAHint la f225; campanie 22s (660f) → f330 */}
+<Sequence from={Math.round(TOTAL_FRAMES * 0.5)} durationInFrames={60}>
   <MidCTAHint />
 </Sequence>
 
@@ -162,11 +255,13 @@ Copiază outputul din Pasul 3 în funcția `<Name>AdOverlay`, între markerii `S
   <DynamicWatermark />
 </Sequence>
 
-{/* CTA overlay ultimele ~6s */}
+{/* CTA overlay ultimele 5–6s */}
+{/* Text buton: "Comandă acum — livrare în 24h" (+15-25% CTR față de CTA generic) */}
 <Sequence from={CTA_START} durationInFrames={TOTAL_FRAMES - CTA_START}>
   <CTAOverlay
     tagline={"Numele produsului —\nbeneficiu principal"}
     discountLabel="-X% AZI"   {/* opțional, elimină dacă nu e discount */}
+    ctaText="Comandă acum — livrare în 24h"
   />
 </Sequence>
 
@@ -216,11 +311,15 @@ npm run dev
 ```
 
 **Ce verifici:**
+- [ ] **Hook f0–f3s: oprește scroll-ul?** Text sau produs apare imediat, fără delay
 - [ ] Subtitlurile apar **în același timp** cu vocea (nu înainte, nu după)
 - [ ] Niciun clip negru sau freeze (trimBefore depășit)
 - [ ] Clipurile apar la momentul narativ corect față de voiceover
 - [ ] Textul nu e acoperit de UI Meta (safe zone 22.5% bottom)
+- [ ] **Pacing:** niciun clip nu durează >5s fără schimbare vizuală
+- [ ] **Gradienți:** nu există bottom gradient mai înalt de 30% din canvas
 - [ ] CTA overlay apare când vocea tace (după ultimul subtitle)
+- [ ] **CTA text include beneficiu logistic** ("livrare în 24h")
 - [ ] Toate 4 formatele arată bine
 
 **Ajustare timing subtitluri:**
@@ -301,12 +400,14 @@ Descriere (Shopify): """
 Clipuri disponibile:
 - clip1.mp4 — [ce arată, 30fps sau 120fps 4K]
 - clip2.mp4 — [ce arată]
-- voce-[slug].mp3 — voiceover generat ElevenLabs
+- voce-[slug].mp3 — voiceover generat ElevenLabs (~9-10s pentru campanie 15s)
 
 Scriptul subtitluri: scripts/[slug].subs.txt (deja creat)
 
 Public țintă: [ex: femei 25-45 interesate de cadouri romantice]
-Durata: ~30s
+Audiență: [cold/prospecting sau warm/retargeting]
+Durata: 15s (450 frames) — default pentru campanii noi
 
-Citește docs/new-campaign.md și urmează pașii în ordine.
+Citește docs/new-campaign.md (secțiunea REFERINȚĂ CREATIVĂ + pașii în ordine).
+Respectă strict regulile din Creative Strategy din CLAUDE.md.
 ```
