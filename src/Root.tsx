@@ -24,6 +24,13 @@ import {
   ModelareCorporalaAd_1x1,
   ModelareCorporalaAd_16x9,
 } from "./ModelareCorporalaAd";
+import {
+  Ep2011Ad3,
+  Ep2011Ad3_4x5,
+  Ep2011Ad3_1x1,
+  Ep2011Ad3_16x9,
+  TOTAL_FRAMES as EP2011AD3_FRAMES,
+} from "./Ep2011Ad3";
 
 export const RemotionRoot: React.FC = () => {
   return (
@@ -232,6 +239,38 @@ export const RemotionRoot: React.FC = () => {
         id="ModelareCorporalaAd-16x9"
         component={ModelareCorporalaAd_16x9}
         durationInFrames={720}
+        fps={30}
+        width={1920}
+        height={1080}
+      />
+      <Composition
+        id="Ep2011Ad3-9x16"
+        component={Ep2011Ad3}
+        durationInFrames={EP2011AD3_FRAMES}
+        fps={30}
+        width={1080}
+        height={1920}
+      />
+      <Composition
+        id="Ep2011Ad3-4x5"
+        component={Ep2011Ad3_4x5}
+        durationInFrames={EP2011AD3_FRAMES}
+        fps={30}
+        width={1080}
+        height={1350}
+      />
+      <Composition
+        id="Ep2011Ad3-1x1"
+        component={Ep2011Ad3_1x1}
+        durationInFrames={EP2011AD3_FRAMES}
+        fps={30}
+        width={1080}
+        height={1080}
+      />
+      <Composition
+        id="Ep2011Ad3-16x9"
+        component={Ep2011Ad3_16x9}
+        durationInFrames={EP2011AD3_FRAMES}
         fps={30}
         width={1920}
         height={1080}
